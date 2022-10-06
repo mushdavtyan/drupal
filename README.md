@@ -1,6 +1,6 @@
 ## Drupal 
 
-#prerequisites
+# prerequisites
 
 - Docker
 - Docker compose
@@ -8,7 +8,8 @@
 # How to use
 
 If you have already created project, just copy it to dpupal-data folder
-If you have already mysql data, just copy that to mysql-data folder and enable volume in docker-compose by uncommenting that
+If you have already mysql data, just copy that to mysql-data folder and enable volume in docker-compose by uncommenting that, also you can copy your database sql code to setup.sql and with this code database will be created
+
 
 open .env file and fill the mysql credentials, then run
 
