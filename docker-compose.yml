@@ -15,6 +15,7 @@ services:
 
   drupal:
     build:
+      context: ./
       dockerfile: Dockerfile
     container_name: drupal
     ports:
