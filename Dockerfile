@@ -1,6 +1,4 @@
 FROM php:7.4-apache-buster
-MAINTAINER Mushegh Davtyan
-
 
 # install the PHP extensions we need
 RUN set -eux; \
@@ -19,6 +17,8 @@ RUN set -eux; \
 		libpq-dev \
 		libwebp-dev \
 		libzip-dev \
+		git \
+		iipimage-server \
 	; \
 	\
 	docker-php-ext-configure gd \
@@ -47,10 +47,11 @@ RUN set -eux; \
 		| xargs -rt apt-mark manual; \
 	\
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-	rm -rf /var/lib/apt/lists/*
+	apt update; \
+	apt install git -y
 
 # set recommended PHP.ini settings
-
+# see https://secure.php.net/manual/en/opcache.installation.php
 RUN { \
 		echo 'opcache.memory_consumption=128'; \
 		echo 'opcache.interned_strings_buffer=8'; \
@@ -59,15 +60,17 @@ RUN { \
 		echo 'opcache.fast_shutdown=1'; \
 	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
-ENV DRUPAL_VERSION 7.92
-ENV DRUPAL_MD5 7f95bd4a6693ed5215aba4038c23c933
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/
 
-RUN set -eux; \
-	curl -fSL "https://ftp.drupal.org/files/projects/drupal-${DRUPAL_VERSION}.tar.gz" -o drupal.tar.gz; \
-	echo "${DRUPAL_MD5} *drupal.tar.gz" | md5sum -c -; \
-	tar -xz --strip-components=1 -f drupal.tar.gz; \
-	rm drupal.tar.gz; \
-        chown -R www-data:www-data sites modules themes
+WORKDIR /var/www/html
+COPY ./agda /var/www/html
 
-COPY ./drupal-data /var/www/html
-RUN chown -R www-data:www-data sites modules themes
+RUN chown -R www-data:www-data sites modules themes 
+RUN composer install
+    # --ignore-platform-reqs \
+    # --no-interaction \
+    # --no-plugins \
+    # --no-scripts \
+    # --prefer-dist
+
+ENV PATH=${PATH}:/opt/drupal/vendor/bind

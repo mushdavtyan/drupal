@@ -13,6 +13,29 @@ services:
     networks:
       - internal
 
+  elasticsearch:
+    image: elasticsearch:2.4.1
+    ports:
+     - "9200:9200"
+    container_name: elasticsearch
+    command: elasticsearch -Des.node.name="Elasticsearch_Connector"
+    networks:
+      - internal
+
+  varnish:
+    image: wodby/drupal-varnish
+    container_name: varnish
+    environment:
+      VARNISH_SECRET: secret
+      VARNISH_BACKEND_HOST: nginx
+      VARNISH_BACKEND_PORT: 80
+      VARNISH_MEMORY_SIZE: 256M
+      VARNISH_STORAGE_SIZE: 1024M
+    ports:
+      - "8081:6081" # HTTP Proxy
+      - "8082:6082" # Control terminal
+
+
   drupal:
     build:
       context: ./
@@ -22,6 +45,8 @@ services:
       - "80:80"
     depends_on:
       - mysql
+      - varnish
+      - elasticsearch
     restart: unless-stopped
     networks:
       - internal
