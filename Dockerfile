@@ -18,7 +18,7 @@ RUN set -eux; \
 		libwebp-dev \
 		libzip-dev \
 		git \
-		iipimage-server \
+		vim \
 	; \
 	\
 	docker-php-ext-configure gd \
@@ -51,7 +51,6 @@ RUN set -eux; \
 	apt install git -y
 
 # set recommended PHP.ini settings
-# see https://secure.php.net/manual/en/opcache.installation.php
 RUN { \
 		echo 'opcache.memory_consumption=128'; \
 		echo 'opcache.interned_strings_buffer=8'; \

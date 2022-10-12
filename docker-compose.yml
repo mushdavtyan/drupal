@@ -34,7 +34,20 @@ services:
     ports:
       - "8081:6081" # HTTP Proxy
       - "8082:6082" # Control terminal
+    networks:
+      - internal
 
+  iip_server:
+    build:
+      context: ./iip_image
+      dockerfile: Dockerfile
+    container_name: iip_image
+    ports:
+      - "8080:80"
+    volumes:
+      - ./iip_image/images:/images
+    networks:
+      - internal
 
   drupal:
     build:
@@ -47,7 +60,10 @@ services:
       - mysql
       - varnish
       - elasticsearch
+      - iip_server
     restart: unless-stopped
+    volumes:
+      - ./iip_image/data:/var/www/html/drupal/sites/default/files
     networks:
       - internal
 
